@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>World Clock</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: white;
+
+      min-height: 100vh;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      padding: 60px 20px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      margin-bottom: 50px;
+    }
+
+    .clock-container {
+      width: 100%;
+      max-width: 1100px;
+
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+      gap: 20px;
+    }
+
+    .clock-card {
+      background: #1f2937;
+
+      border-radius: 16px;
+
+      padding: 30px 20px;
+
+      text-align: center;
+
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+
+      transition: transform 0.2s;
+    }
+
+    .clock-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .city {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    .time {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .date {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .timezone {
+      margin-top: 12px;
+      color: #60a5fa;
+      font-size: 13px;
+    }
+
+    footer {
+      margin-top: 60px;
+      color: #6b7280;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>🌍 World Clock</h1>
+  <p class="subtitle">세계 주요 도시의 현재 시간</p>
+
+  <div class="clock-container">
+
+    <div class="clock-card">
+      <div class="city">🇰🇷 SEOUL</div>
+      <div class="time" id="seoul-time"></div>
+      <div class="date" id="seoul-date"></div>
+      <div class="timezone">Asia / Seoul</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="city">🇺🇸 LOS ANGELES</div>
+      <div class="time" id="la-time"></div>
+      <div class="date" id="la-date"></div>
+      <div class="timezone">America / Los Angeles</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="city">🇺🇸 NEW YORK</div>
+      <div class="time" id="ny-time"></div>
+      <div class="date" id="ny-date"></div>
+      <div class="timezone">America / New York</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="city">🇬🇧 LONDON</div>
+      <div class="time" id="london-time"></div>
+      <div class="date" id="london-date"></div>
+      <div class="timezone">Europe / London</div>
+    </div>
+
+    <div class="clock-card">
+      <div class="city">🇮🇹 ROME</div>
+      <div class="time" id="rome-time"></div>
+      <div class="date" id="rome-date"></div>
+      <div class="timezone">Europe / Rome</div>
+    </div>
+
+  </div>
+
+  <footer>
+    World Clock
+  </footer>
+
+  <script>
+
+    const cities = [
+      {
+        timeId: "seoul-time",
+        dateId: "seoul-date",
+        timezone: "Asia/Seoul"
+      },
+      {
+        timeId: "la-time",
+        dateId: "la-date",
+        timezone: "America/Los_Angeles"
+      },
+      {
+        timeId: "ny-time",
+        dateId: "ny-date",
+        timezone: "America/New_York"
+      },
+      {
+        timeId: "london-time",
+        dateId: "london-date",
+        timezone: "Europe/London"
+      },
+      {
+        timeId: "rome-time",
+        dateId: "rome-date",
+        timezone: "Europe/Rome"
+      }
+    ];
+
+    function updateClocks() {
+
+      const now = new Date();
+
+      cities.forEach(city => {
+
+        const time = new Intl.DateTimeFormat("en-US", {
+          timeZone: city.timezone,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        }).format(now);
+
+        const date = new Intl.DateTimeFormat("en-US", {
+          timeZone: city.timezone,
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "short"
+        }).format(now);
+
+        document.getElementById(city.timeId).textContent = time;
+        document.getElementById(city.dateId).textContent = date;
+
+      });
+
+    }
+
+    updateClocks();
+
+    setInterval(updateClocks, 1000);
+
+  </script>
+
+</body>
+</html>
