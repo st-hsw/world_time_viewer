@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Stress-Strain Analyzer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    header {
+      padding: 35px 20px;
+      text-align: center;
+      background: #111827;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 36px;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: #94a3b8;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 25px;
+    }
+
+    .panel {
+      background: #1e293b;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 340px;
+      resize: vertical;
+
+      background: #0f172a;
+      color: white;
+
+      border: 1px solid #475569;
+      border-radius: 10px;
+
+      padding: 15px;
+
+      font-family: monospace;
+      font-size: 14px;
+    }
+
+    textarea:focus {
+      outline: 2px solid #3b82f6;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+
+      padding: 14px;
+
+      border: none;
+      border-radius: 10px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      background: #2563eb;
+      color: white;
+
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    canvas {
+      width: 100%;
+      background: white;
+      border-radius: 10px;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .result-card {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .result-title {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .result-value {
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .description {
+      margin-top: 30px;
+
+      background: #1e293b;
+      padding: 25px;
+
+      border-radius: 16px;
+    }
+
+    .description h2 {
+      margin-bottom: 20px;
+    }
+
+    .equation {
+      background: #0f172a;
+
+      border-radius: 10px;
+      padding: 15px;
+
+      margin: 15px 0;
+
+      font-family: monospace;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #475569;
+      text-align: left;
+    }
+
+    th {
+      color: #93c5fd;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      padding: 40px;
+    }
+
+    @media (max-width: 850px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .results {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Stress-Strain Analyzer</h1>
+  <p>Engineering Stress–Strain Curve Analysis Tool</p>
+</header>
+
+<div class="container">
+
+  <div class="grid">
+
+    <!-- INPUT -->
+
+    <div class="panel">
+
+      <h2>Stress-Strain Data</h2>
+
+      <p>
+        각 줄에 다음 형식으로 입력하세요.
+      </p>
+
+      <div class="equation">
+        strain, stress(MPa)
+      </div>
+
+      <textarea id="dataInput">
+0, 0
+0.0005, 100
+0.0010, 200
+0.0015, 300
+0.0020, 400
+0.0025, 420
+0.0030, 430
+0.0040, 445
+0.0050, 455
+0.0100, 470
+0.0200, 490
+0.0500, 520
+0.1000, 550
+0.1500, 570
+0.2000, 560
+0.2500, 530
+      </textarea>
+
+      <button onclick="analyzeData()">
+        Analyze Stress-Strain Data
+      </button>
+
+    </div>
+
+
+    <!-- GRAPH -->
+
+    <div class="panel">
+
+      <h2>Stress-Strain Curve</h2>
+
+      <canvas
+        id="stressStrainChart"
+        width="700"
+        height="500">
+      </canvas>
+
+    </div>
+
+  </div>
+
+
+  <!-- RESULTS -->
+
+  <div class="results">
+
+    <div class="result-card">
+
+      <div class="result-title">
+        Young's Modulus
+      </div>
+
+      <div
+        class="result-value"
+        id="youngResult">
+        -
+      </div>
+
+    </div>
+
+
+    <div class="result-card">
+
+      <div class="result-title">
+        Yield Strength
+      </div>
+
+      <div
+        class="result-value"
+        id="yieldResult">
+        -
+      </div>
+
+    </div>
+
+
+    <div class="result-card">
+
+      <div class="result-title">
+        Ultimate Tensile Strength
+      </div>
+
+      <div
+        class="result-value"
+        id="utsResult">
+        -
+      </div>
+
+    </div>
+
+
+    <div class="result-card">
+
+      <div class="result-title">
+        Fracture Strain
+      </div>
+
+      <div
+        class="result-value"
+        id="fractureResult">
+        -
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- THEORY -->
+
+  <div class="description">
+
+    <h2>Stress-Strain Analysis</h2>
+
+    <p>
+      응력–변형률 선도는 재료가 외부 하중을 받을 때
+      어떻게 변형되고 파괴되는지를 나타내는 기본적인
+      재료역학 그래프입니다.
+    </p>
+
+
+    <h3>Engineering Stress</h3>
+
+    <div class="equation">
+      σ = F / A₀
+    </div>
+
+    <p>
+      σ : Engineering Stress<br>
+      F : Applied Force<br>
+      A₀ : Initial Cross-sectional Area
+    </p>
+
+
+    <h3>Engineering Strain</h3>
+
+    <div class="equation">
+      ε = (L - L₀) / L₀
+    </div>
+
+    <p>
+      ε : Engineering Strain<br>
+      L₀ : Initial Length<br>
+      L : Current Length
+    </p>
+
+
+    <h3>Young's Modulus</h3>
+
+    <div class="equation">
+      E = Δσ / Δε
+    </div>
+
+    <p>
+      탄성영역에서 응력과 변형률의 기울기를 이용하여
+      재료의 강성을 평가합니다.
+    </p>
+
+
+    <table>
+
+      <tr>
+        <th>Property</th>
+        <th>Meaning</th>
+      </tr>
+
+      <tr>
+        <td>Young's Modulus</td>
+        <td>재료의 탄성 강성</td>
+      </tr>
+
+      <tr>
+        <td>Yield Strength</td>
+        <td>소성변형이 시작되는 응력</td>
+      </tr>
+
+      <tr>
+        <td>Ultimate Tensile Strength</td>
+        <td>재료가 견딜 수 있는 최대 공학응력</td>
+      </tr>
+
+      <tr>
+        <td>Fracture Strain</td>
+        <td>파단 직전의 공학변형률</td>
+      </tr>
+
+    </table>
+
+  </div>
+
+</div>
+
+
+<footer>
+  Stress-Strain Engineering Analysis Tool
+</footer>
+
+
+<script>
+
+const canvas =
+  document.getElementById("stressStrainChart");
+
+const ctx =
+  canvas.getContext("2d");
+
+
+function parseData() {
+
+  const text =
+    document.getElementById("dataInput").value;
+
+  const lines =
+    text.split("\n");
+
+  const data = [];
+
+  lines.forEach(line => {
+
+    const parts =
+      line.split(",");
+
+    if (parts.length >= 2) {
+
+      const strain =
+        parseFloat(parts[0]);
+
+      const stress =
+        parseFloat(parts[1]);
+
+      if (
+        !isNaN(strain) &&
+        !isNaN(stress)
+      ) {
+
+        data.push({
+          strain,
+          stress
+        });
+
+      }
+
+    }
+
+  });
+
+
+  data.sort(
+    (a, b) =>
+      a.strain - b.strain
+  );
+
+
+  return data;
+}
+
+
+
+function analyzeData() {
+
+  const data =
+    parseData();
+
+
+  if (data.length < 3) {
+
+    alert(
+      "최소 3개 이상의 데이터를 입력하세요."
+    );
+
+    return;
+
+  }
+
+
+  drawChart(data);
+
+
+  /*
+    Young's Modulus
+
+    여기서는 초기 strain 구간
+    strain <= 0.002 데이터를 이용해
+    선형회귀를 수행한다.
+  */
+
+  let elasticData =
+    data.filter(
+      d =>
+        d.strain > 0 &&
+        d.strain <= 0.002
+    );
+
+
+  if (elasticData.length < 2) {
+
+    elasticData =
+      data.slice(
+        0,
+        Math.min(4, data.length)
+      );
+
+  }
+
+
+  const E =
+    linearRegressionSlope(
+      elasticData
+    );
+
+
+  /*
+    UTS
+  */
+
+  let utsPoint =
+    data[0];
+
+
+  data.forEach(point => {
+
+    if (
+      point.stress >
+      utsPoint.stress
+    ) {
+
+      utsPoint =
+        point;
+
+    }
+
+  });
+
+
+  /*
+    0.2% Offset Yield Strength
+  */
+
+  const yieldPoint =
+    calculateYieldStrength(
+      data,
+      E
+    );
+
+
+  /*
+    fracture point
+
+    입력 데이터의 마지막 점을
+    파단점으로 가정
+  */
+
+  const fracturePoint =
+    data[data.length - 1];
+
+
+  document
+    .getElementById(
+      "youngResult"
+    )
+    .textContent =
+      (E / 1000).toFixed(2)
+      + " GPa";
+
+
+  document
+    .getElementById(
+      "utsResult"
+    )
+    .textContent =
+      utsPoint.stress.toFixed(1)
+      + " MPa";
+
+
+  document
+    .getElementById(
+      "fractureResult"
+    )
+    .textContent =
+      (
+        fracturePoint.strain
+        * 100
+      ).toFixed(2)
+      + " %";
+
+
+  if (yieldPoint) {
+
+    document
+      .getElementById(
+        "yieldResult"
+      )
+      .textContent =
+        yieldPoint.stress
+        .toFixed(1)
+        + " MPa";
+
+  } else {
+
+    document
+      .getElementById(
+        "yieldResult"
+      )
+      .textContent =
+        "N/A";
+
+  }
+
+}
+
+
+
+function linearRegressionSlope(data) {
+
+  const n =
+    data.length;
+
+
+  let sumX = 0;
+  let sumY = 0;
+  let sumXY = 0;
+  let sumXX = 0;
+
+
+  data.forEach(p => {
+
+    sumX +=
+      p.strain;
+
+    sumY +=
+      p.stress;
+
+    sumXY +=
+      p.strain
+      * p.stress;
+
+    sumXX +=
+      p.strain
+      * p.strain;
+
+  });
+
+
+  const numerator =
+    n * sumXY
+    - sumX * sumY;
+
+
+  const denominator =
+    n * sumXX
+    - sumX * sumX;
+
+
+  if (
+    Math.abs(
+      denominator
+    ) < 1e-12
+  ) {
+
+    return 0;
+
+  }
+
+
+  return (
+    numerator /
+    denominator
+  );
+
+}
+
+
+
+function calculateYieldStrength(
+  data,
+  E
+) {
+
+  if (
+    !isFinite(E) ||
+    E <= 0
+  ) {
+
+    return null;
+
+  }
+
+
+  /*
+    0.2% offset line
+
+    stress =
+    E * (strain - 0.002)
+  */
+
+
+  let previousDifference =
+    null;
+
+
+  for (
+    let i = 0;
+    i < data.length;
+    i++
+  ) {
+
+    const p =
+      data[i];
+
+
+    if (
+      p.strain < 0.002
+    ) {
+
+      continue;
+
+    }
+
+
+    const offsetStress =
+      E *
+      (
+        p.strain
+        - 0.002
+      );
+
+
+    const difference =
+      p.stress
+      - offsetStress;
+
+
+    if (
+      previousDifference !== null &&
+      difference <= 0 &&
+      previousDifference > 0
+    ) {
+
+      return p;
+
+    }
+
+
+    previousDifference =
+      difference;
+
+  }
+
+
+  return null;
+
+}
+
+
+
+function drawChart(data) {
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  const padding = 70;
+
+
+  const maxStrain =
+    Math.max(
+      ...data.map(
+        d => d.strain
+      )
+    );
+
+
+  const maxStress =
+    Math.max(
+      ...data.map(
+        d => d.stress
+      )
+    );
+
+
+  /*
+    white background
+  */
+
+  ctx.fillStyle =
+    "white";
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  /*
+    axes
+  */
+
+  ctx.strokeStyle =
+    "#111827";
+
+  ctx.lineWidth = 2;
+
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    padding,
+    padding
+  );
+
+  ctx.lineTo(
+    padding,
+    canvas.height
+    - padding
+  );
+
+  ctx.lineTo(
+    canvas.width
+    - padding,
+    canvas.height
+    - padding
+  );
+
+  ctx.stroke();
+
+
+  /*
+    grid
+  */
+
+  ctx.strokeStyle =
+    "#e5e7eb";
+
+  ctx.lineWidth = 1;
+
+
+  for (
+    let i = 0;
+    i <= 5;
+    i++
+  ) {
+
+    const y =
+      padding
+      +
+      (
+        canvas.height
+        - 2 * padding
+      )
+      * i / 5;
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      padding,
+      y
+    );
+
+    ctx.lineTo(
+      canvas.width
+      - padding,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  /*
+    stress-strain curve
+  */
+
+  ctx.strokeStyle =
+    "#2563eb";
+
+  ctx.lineWidth = 3;
+
+
+  ctx.beginPath();
+
+
+  data.forEach(
+    (point, index) => {
+
+      const x =
+        padding
+        +
+        (
+          point.strain
+          / maxStrain
+        )
+        *
+        (
+          canvas.width
+          - 2 * padding
+        );
+
+
+      const y =
+        canvas.height
+        - padding
+        -
+        (
+          point.stress
+          / maxStress
+        )
+        *
+        (
+          canvas.height
+          - 2 * padding
+        );
+
+
+      if (
+        index === 0
+      ) {
+
+        ctx.moveTo(
+          x,
+          y
+        );
+
+      } else {
+
+        ctx.lineTo(
+          x,
+          y
+        );
+
+      }
+
+    }
+  );
+
+
+  ctx.stroke();
+
+
+  /*
+    point markers
+  */
+
+  ctx.fillStyle =
+    "#dc2626";
+
+
+  data.forEach(point => {
+
+    const x =
+      padding
+      +
+      (
+        point.strain
+        / maxStrain
+      )
+      *
+      (
+        canvas.width
+        - 2 * padding
+      );
+
+
+    const y =
+      canvas.height
+      - padding
+      -
+      (
+        point.stress
+        / maxStress
+      )
+      *
+      (
+        canvas.height
+        - 2 * padding
+      );
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      x,
+      y,
+      4,
+      0,
+      Math.PI * 2
+    );
+
+    ctx.fill();
+
+  });
+
+
+  /*
+    labels
+  */
+
+  ctx.fillStyle =
+    "#111827";
+
+  ctx.font =
+    "16px Arial";
+
+
+  ctx.fillText(
+    "Engineering Strain",
+    canvas.width / 2 - 70,
+    canvas.height - 20
+  );
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    20,
+    canvas.height / 2 + 60
+  );
+
+
+  ctx.rotate(
+    -Math.PI / 2
+  );
+
+
+  ctx.fillText(
+    "Engineering Stress (MPa)",
+    0,
+    0
+  );
+
+
+  ctx.restore();
+
+
+  /*
+    scale labels
+  */
+
+  ctx.font =
+    "12px Arial";
+
+
+  for (
+    let i = 0;
+    i <= 5;
+    i++
+  ) {
+
+    const strainValue =
+      maxStrain
+      * i / 5;
+
+
+    const x =
+      padding
+      +
+      (
+        canvas.width
+        - 2 * padding
+      )
+      * i / 5;
+
+
+    ctx.fillText(
+      strainValue
+      .toFixed(3),
+
+      x - 15,
+
+      canvas.height
+      - padding
+      + 20
+    );
+
+
+    const stressValue =
+      maxStress
+      *
+      (
+        5 - i
+      )
+      / 5;
+
+
+    const y =
+      padding
+      +
+      (
+        canvas.height
+        - 2 * padding
+      )
+      * i / 5;
+
+
+    ctx.fillText(
+      stressValue
+      .toFixed(0),
+
+      25,
+
+      y + 4
+    );
+
+  }
+
+}
+
+
+/*
+  페이지 로드시
+  자동 분석
+*/
+
+analyzeData();
+
+</script>
+
+</body>
+</html>
